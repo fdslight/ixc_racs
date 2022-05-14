@@ -6,7 +6,7 @@ import racs.lib.logging as logging
 
 
 class udp_tunnel(udp_handler.udp_handler):
-    def init_func(self, creator, address,is_ipv6=False):
+    def init_func(self, creator, address, is_ipv6=False):
         if is_ipv6:
             fa = socket.AF_INET6
         else:
@@ -21,29 +21,28 @@ class udp_tunnel(udp_handler.udp_handler):
         self.add_evt_read(self.fileno)
 
         return self.fileno
-    
+
     @property
     def encrypt(self):
         return self.dispatcher.encrypt
-    
+
     @property
     def decrypt(self):
         return self.dispatcher.decrypt
 
     def udp_readable(self, message, address):
-        rs=self.decrypt.unwrap(message)
-        if not rs:return
+        rs = self.decrypt.unwrap(message)
+        if not rs: return
 
-        user_id,msg=rs
-        if not self.dispatcher.user_exists(user_id):return
+        user_id, msg = rs
+        if not self.dispatcher.user_exists(user_id): return
 
         # 如果为空包,那么回一个相同的数据包,保持UDP心跳
         if not msg:
             self.sendto(message, address)
             return
 
-        self.dispatcher.handle_msg_from_tunnel(self.fileno,user_id,msg)
-
+        self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg)
 
     def udp_writable(self):
         self.remove_evt_write(self.fileno)
@@ -58,6 +57,6 @@ class udp_tunnel(udp_handler.udp_handler):
         self.unregister(self.fileno)
         self.close()
 
-    def send_msg(self,_id,addreess, message:bytes):
-       self.add_evt_write(self.fileno)
-       self.sendto(message, address)
+    def send_msg(self, _id, address, message: bytes):
+        self.add_evt_write(self.fileno)
+        self.sendto(message, address)
