@@ -1,0 +1,5 @@
+# 重写IP地址规则,自动识别IPv4和IPv6
+# WAN_access_destination_addess -> LAN_access_destination_address
+# WAN端访问的IP地址 -> LAN端访问的IP地址
+
+10.10.2.200 -> 192.168.3.200
