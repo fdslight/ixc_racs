@@ -124,12 +124,13 @@ class racs_d(dispatcher.dispatcher):
     def user_exists(self, user_id: bytes):
         return user_id in self.__users
 
+    def update_user_conn(self, user_id, fd, address):
+        user = self.__users[user_id]
+        user["fileno"] = fd
+        user["address"] = address
+
     def handle_msg_from_tunnel(self, fileno, user_id, address, message):
         if user_id not in self.__users: return
-
-        user = self.__users[user_id]
-        user["address"] = address
-        user["fileno"] = fileno
 
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
 
