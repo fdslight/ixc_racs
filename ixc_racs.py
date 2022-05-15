@@ -107,8 +107,8 @@ class racs_d(dispatcher.dispatcher):
         local_ip_rule = self.__configs["local_ip_rule"]
         local_ip6_rule = self.__configs["local_ip6_rule"]
 
-        self.racs.local_rule_set(local_ip_rule["src"], local_ip_rule["dst"], False)
-        self.racs.local_rule_set(local_ip6_rule["src"], local_ip6_rule["dst"], True)
+        self.racs.local_rule_set(local_ip_rule["old"], local_ip_rule["new"], False)
+        self.racs.local_rule_set(local_ip6_rule["old"], local_ip6_rule["new"], True)
 
     def myloop(self):
         io_wait = self.racs.loop()
