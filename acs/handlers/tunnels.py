@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-import socket, time, hashlib
+import socket
 
 import pywind.evtframework.handlers.udp_handler as udp_handler
-import acs.lib.logging as logging
 
 
 class udp_tunnel(udp_handler.udp_handler):
@@ -60,5 +59,6 @@ class udp_tunnel(udp_handler.udp_handler):
         self.close()
 
     def send_msg(self, _id, address, message: bytes):
+        wrap_data = self.encrypt.wrap(_id, message)
         self.add_evt_write(self.fileno)
-        self.sendto(message, address)
+        self.sendto(wrap_data, address)
