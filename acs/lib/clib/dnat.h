@@ -23,7 +23,7 @@ struct ixc_dnat{
     // 本机的IP地址
     unsigned char local_old_ip[4];
     // 重写后的本机IPv6地址
-    unsigned char local_new_ip[4]
+    unsigned char local_new_ip[4];
 };
 
 struct ixc_dnat_rule{

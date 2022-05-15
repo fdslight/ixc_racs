@@ -222,7 +222,7 @@ static PyObject *
 racs_local_rule_set(PyObject *self,PyObject *args)
 {
     const char *old_ip,*new_ip;
-    int is_ipv6,rs;
+    int is_ipv6;
     unsigned char old_net[256];
     unsigned char new_net[256];
 
