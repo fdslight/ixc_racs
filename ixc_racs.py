@@ -98,7 +98,7 @@ class racs_d(dispatcher.dispatcher):
             sys.stdout = open(LOG_FILE, "a+")
             sys.stderr = open(ERR_FILE, "a+")
 
-            self.proxy.clog_set("/tmp/ixc_racs_stdout.log", "/tmp/ixc_racs_stderr.log")
+            self.racs.clog_set("/tmp/ixc_racs_stdout.log", "/tmp/ixc_racs_stderr.log")
 
         self.load_users()
 
@@ -252,7 +252,7 @@ def __update_user_configs():
     pid = proc.get_pid(PID_FILE)
 
     if pid < 0:
-        print("cannot found proxy process")
+        print("cannot found racs process")
         return
 
     os.kill(pid, signal.SIGUSR1)
