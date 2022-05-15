@@ -102,6 +102,7 @@ class racs_d(dispatcher.dispatcher):
 
         self.load_users()
         self.set_local_rule()
+        self.set_os()
 
     def set_local_rule(self):
         local_ip_rule = self.__configs["local_ip_rule"]
@@ -214,6 +215,10 @@ class racs_d(dispatcher.dispatcher):
             self.racs.rule_add(user_id, left_ip, right_ip, is_ipv6)
             self.__os_route_add(left_ip, is_ipv6=is_ipv6)
         ''''''
+
+    def set_os(self):
+        os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+        os.system("echo 1 >/proc/sys/net/ipv6/conf/all/forwarding")
 
 
 def __start_service(debug):
