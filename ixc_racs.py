@@ -101,6 +101,14 @@ class racs_d(dispatcher.dispatcher):
             self.racs.clog_set("/tmp/ixc_racs_stdout.log", "/tmp/ixc_racs_stderr.log")
 
         self.load_users()
+        self.set_local_rule()
+
+    def set_local_rule(self):
+        local_ip_rule = self.__configs["local_ip_rule"]
+        local_ip6_rule = self.__configs["local_ip6_rule"]
+
+        self.racs.local_rule_set(local_ip_rule["src"], local_ip_rule["dst"], False)
+        self.racs.local_rule_set(local_ip6_rule["src"], local_ip6_rule["dst"], True)
 
     def myloop(self):
         io_wait = self.racs.loop()
@@ -129,7 +137,7 @@ class racs_d(dispatcher.dispatcher):
         user["fileno"] = fd
         user["address"] = address
 
-    def handle_msg_from_tunnel(self,user_id,message):
+    def handle_msg_from_tunnel(self, user_id, message):
         if user_id not in self.__users: return
 
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
