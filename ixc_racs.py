@@ -174,7 +174,7 @@ class racs_d(dispatcher.dispatcher):
         sys.exit(0)
 
     def __handle_user_change_signal(self, signum, frame):
-        self.__access.handle_user_change_signal()
+        self.reset_users()
 
     def load_users(self):
         path = "%s/ixc_configs/users.json" % BASE_DIR
