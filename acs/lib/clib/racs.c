@@ -218,6 +218,28 @@ racs_rule_del(PyObject *self,PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+racs_local_rule_set(PyObject *self,PyObject *args)
+{
+    const char *old_ip,*new_ip;
+    int is_ipv6,rs;
+    unsigned char old_net[256];
+    unsigned char new_net[256];
+
+    if(!PyArg_ParseTuple(args,"ssp",&old_ip,&new_ip,&is_ipv6)) return NULL;
+
+    if(is_ipv6){
+        inet_pton(AF_INET6,old_ip,old_net);
+        inet_pton(AF_INET6,new_ip,new_net);
+    }else{
+        inet_pton(AF_INET,old_ip,old_net);
+        inet_pton(AF_INET,new_ip,new_net);
+    }
+
+    ixc_dnat_local_rule_set(old_net,new_net,is_ipv6);
+    Py_RETURN_NONE;
+}
+
 /// 打开tun设备
 static PyObject *
 racs_tun_open(PyObject *self,PyObject *args)
@@ -295,6 +317,7 @@ static PyMethodDef racs_methods[]={
     {"netpkt_handle",(PyCFunction)racs_netpkt_handle,METH_VARARGS,"handle ip data packet"},
     {"rule_add",(PyCFunction)racs_rule_add,METH_VARARGS,"dnat rule add"},
     {"rule_del",(PyCFunction)racs_rule_del,METH_VARARGS,"dnat rule del"},
+    {"local_rule_set",(PyCFunction)racs_local_rule_set,METH_VARARGS,"set local rule"},
 
     {"tun_open",(PyCFunction)racs_tun_open,METH_VARARGS,"open tun device"},
     {"tun_close",(PyCFunction)racs_tun_close,METH_VARARGS,"close tun device"},

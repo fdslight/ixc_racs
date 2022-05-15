@@ -15,6 +15,15 @@ struct ixc_dnat{
     
     struct map *left2right_v6;
     struct map *right2left_v6;
+
+    // 本机的IPv6地址
+    unsigned char local_old_ip6[16];
+    // 重写后的IP本机IPv6地址
+    unsigned char local_new_ip6[16];
+    // 本机的IP地址
+    unsigned char local_old_ip[4];
+    // 重写后的本机IPv6地址
+    unsigned char local_new_ip[4]
 };
 
 struct ixc_dnat_rule{
@@ -33,5 +42,8 @@ void ixc_dnat_handle(struct mbuf *m,void *ip_header);
 
 int ixc_dnat_rule_add(const unsigned char *_id,const unsigned char *left_addr,const unsigned char *right_addr,int is_ipv6);
 void ixc_dnat_rule_del(unsigned char *left_addr,int is_ipv6);
+
+/// 设置本机规则
+int ixc_dnat_local_rule_set(const unsigned char *old_addr,const unsigned char *new_addr,int is_ipv6);
 
 #endif

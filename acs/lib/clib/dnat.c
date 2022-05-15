@@ -77,9 +77,13 @@ static void ixc_dnat_handle_v6(struct mbuf *m,struct netutil_ip6hdr *header)
     struct ixc_dnat_rule *rule;
     
     if(m->from==MBUF_FROM_WAN){
+        if(!memcmp(header->src_addr,dnat.local_old_ip6,16)) rewrite_ip6_addr(header,dnat.local_new_ip6,1);
+
         map=dnat.left2right_v6;
         memcpy(key,header->dst_addr,16);
     }else{
+        if(!memcmp(header->dst_addr,dnat.local_new_ip6,16)) rewrite_ip6_addr(header,dnat.local_old_ip6,0);
+
         map=dnat.right2left_v6;
         memcpy(key,m->id,16);
         memcpy(key+16,header->dst_addr,16);
@@ -108,11 +112,17 @@ static void ixc_dnat_handle_v4(struct mbuf *m,struct netutil_iphdr *header)
     unsigned char key[20];
     char is_found;
     struct ixc_dnat_rule *rule;
-    
+
     if(m->from==MBUF_FROM_WAN){
+        // 如果是本机地址,那么重写本机地址
+        if(!memcmp(header->src_addr,dnat.local_old_ip,4)) rewrite_ip_addr(header,dnat.local_new_ip,1);
+
         map=dnat.left2right;
         memcpy(key,header->dst_addr,4);
     }else{
+        // 如果是本机地址,那么重写本机地址
+        if(!memcmp(header->dst_addr,dnat.local_new_ip,4)) rewrite_ip_addr(header,dnat.local_old_ip,0);
+
         map=dnat.right2left;
         memcpy(key,m->id,16);
         memcpy(key+16,header->src_addr,4);
@@ -150,9 +160,6 @@ int ixc_dnat_rule_add(const unsigned char *_id,const unsigned char *left_addr,co
     unsigned char key_right2left[32];
     int rs;
     char is_found;
-
-    PRINT_IP(" ",left_addr);
-    PRINT_IP(" ",right_addr);
 
     if(is_ipv6){
         left2right_m=dnat.left2right_v6;
@@ -209,7 +216,7 @@ int ixc_dnat_rule_add(const unsigned char *_id,const unsigned char *left_addr,co
         memcpy(rule->left_addr,left_addr,4);
         memcpy(rule->right_addr,right_addr,4);
     }
-    
+
     rule->refcnt=2;
 
     return 0;
@@ -240,4 +247,17 @@ void ixc_dnat_rule_del(unsigned char *left_addr,int is_ipv6)
 
     map_del(left2right_m,(char *)left_addr,ixc_dnat_del_cb);
     map_del(right2left_m,(char *)key,ixc_dnat_del_cb);
+}
+
+int ixc_dnat_local_rule_set(const unsigned char *old_addr,const unsigned char *new_addr,int is_ipv6)
+{
+    if(is_ipv6){
+        memcpy(dnat.local_old_ip6,old_addr,16);
+        memcpy(dnat.local_new_ip6,new_addr,16);
+    }else{
+        memcpy(dnat.local_old_ip,old_addr,4);
+        memcpy(dnat.local_new_ip,new_addr,4);
+    }
+
+    return 0;
 }
