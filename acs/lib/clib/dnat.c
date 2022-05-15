@@ -240,7 +240,7 @@ void ixc_dnat_rule_del(unsigned char *left_addr,int is_ipv6)
         memcpy(key+16,left_addr,4);
     }
 
-    rule=map_find(left2right_m,(char *)key,&is_found);
+    rule=map_find(left2right_m,(char *)left_addr,&is_found);
     if(NULL==rule) return;
 
     memcpy(key,rule->id,16);
