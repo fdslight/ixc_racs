@@ -57,6 +57,7 @@ class racs_d(dispatcher.dispatcher):
         fileno = user["fileno"]
 
         if not address: return
+        print(byte_data)
         self.get_handler(fileno).send_msg(_id, address, byte_data)
 
     def init_func(self, debug, configs):
@@ -135,7 +136,6 @@ class racs_d(dispatcher.dispatcher):
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
 
     def handle_ippkt_from_tundev(self, msg: bytes):
-        print(len(msg))
         self.racs.netpkt_handle(bytes(16), msg, racs.FROM_WAN)
 
     def __os_route_add(self, address, is_ipv6=False):
