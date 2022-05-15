@@ -189,7 +189,7 @@ racs_rule_add(PyObject *self,PyObject *args)
         inet_pton(AF_INET6,right_ip,right_net);
     }else{
         inet_pton(AF_INET,left_ip,left_net);
-        inet_pton(AF_INET6,right_ip,right_net);
+        inet_pton(AF_INET,right_ip,right_net);
     }
 
     rs=ixc_dnat_rule_add(id,left_net,right_net,is_ipv6);
