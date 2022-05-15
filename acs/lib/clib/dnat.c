@@ -151,6 +151,9 @@ int ixc_dnat_rule_add(const unsigned char *_id,const unsigned char *left_addr,co
     int rs;
     char is_found;
 
+    PRINT_IP(" ",left_addr);
+    PRINT_IP(" ",right_addr);
+
     if(is_ipv6){
         left2right_m=dnat.left2right_v6;
         right2left_m=dnat.right2left_v6;
