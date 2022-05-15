@@ -59,7 +59,7 @@ class udp_tunnel(udp_handler.udp_handler):
         self.close()
 
     def send_msg(self, _id, address, message: bytes):
-        print(message)
         wrap_data = self.encrypt.wrap(_id, message)
+
         self.add_evt_write(self.fileno)
         self.sendto(wrap_data, address)
