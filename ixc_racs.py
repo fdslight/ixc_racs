@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, getopt, os, signal, json,time
+import sys, getopt, os, signal, json, time
 
 BASE_DIR = os.path.dirname(sys.argv[0])
 
@@ -14,15 +14,15 @@ ERR_FILE = "/tmp/ixc_racs_error.log"
 import pywind.evtframework.evt_dispatcher as dispatcher
 import pywind.lib.configfile as configfile
 
-import racs.handlers.tundev as tundev
-import racs.handlers.tunnels as tunnels
+import acs.handlers.tundev as tundev
+import acs.handlers.tunnels as tunnels
 
-import racs.lib.racs as racs
-import racs.lib.logging as logging
-import racs.lib.proc as proc
+import acs.lib.acs as racs
+import acs.lib.logging as logging
+import acs.lib.proc as proc
 
-import racs.lib.crypto as crypto
-import racs.lib.rule as rule
+import acs.lib.crypto as crypto
+import acs.lib.rule as rule
 
 
 class racs_d(dispatcher.dispatcher):
@@ -124,9 +124,6 @@ class racs_d(dispatcher.dispatcher):
     def user_exists(self, user_id: bytes):
         return user_id in self.__users
 
-    def send_msg_to_tunnel(self, _id: bytes, message: bytes):
-        self.get_handler(fileno).send_msg(_id, address, action, message)
-
     def handle_msg_from_tunnel(self, fileno, user_id, address, message):
         if user_id not in self.__users: return
 
@@ -212,7 +209,7 @@ class racs_d(dispatcher.dispatcher):
 
 def __start_service(debug):
     if not debug and os.path.isfile(PID_FILE):
-        print("the racs server process exists")
+        print("the acs server process exists")
         return
 
     if not debug:
@@ -245,7 +242,7 @@ def __stop_service():
     pid = proc.get_pid(PID_FILE)
 
     if pid < 0:
-        print("cannot found racs server process")
+        print("cannot found acs server process")
         return
 
     os.kill(pid, signal.SIGINT)

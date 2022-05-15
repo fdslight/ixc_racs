@@ -5,14 +5,14 @@ import pywind.lib.sys_build as sys_build
 
 
 def build(cflags):
-    files = sys_build.get_c_files("racs/lib/clib")
+    files = sys_build.get_c_files("acs/lib/clib")
     files += sys_build.get_c_files("pywind/clib")
 
     files+=[
         "pywind/clib/netif/linux_tuntap.c"
     ]
 
-    sys_build.do_compile(files, "racs/lib/racs.so", cflags, is_shared=True)
+    sys_build.do_compile(files, "acs/lib/acs.so", cflags, is_shared=True)
 
 
 def main():

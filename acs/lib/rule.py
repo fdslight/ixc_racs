@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+#import sys
+#sys.path.append("../../")
 
 import pywind.lib.netutils as netutils
-import racs.lib.logging as logging
+import acs.lib.logging as logging
 
 class RuleErr(Exception):pass
 
@@ -109,3 +111,6 @@ class rule_manager(object):
     def reset(self):
         self.__rules={}
         self.__rules_reverse={}
+
+
+#print(rule_parse("../../ixc_configs/rules/example.rule"))
