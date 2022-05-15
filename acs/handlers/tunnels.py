@@ -37,7 +37,6 @@ class udp_tunnel(udp_handler.udp_handler):
         if not self.dispatcher.user_exists(user_id): return
 
         self.dispatcher.update_user_conn(user_id, self.fileno, address)
-        print(user_id)
         # 如果为空包,那么回一个相同的数据包,保持UDP心跳
         if not msg:
             self.sendto(message, address)
