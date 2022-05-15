@@ -13,13 +13,12 @@ def rule_parse(fpath:str):
 
     for line in fdst:
         line=line.strip()
-        # 去除注释
-        if line[0]=="#":continue
-
         line=line.strip("\r")
         line=line.strip("\n")
-        
+
         if not line:continue
+        # 去除注释
+        if line[0]=="#":continue
 
         p=line.find("->")
 
