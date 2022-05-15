@@ -5,6 +5,7 @@
 #include "dnat.h"
 #include "qos.h"
 #include "racs.h"
+#include "debug.h"
 
 #include "../../../pywind/clib/netutils.h"
 #include "../../../pywind/clib/debug.h"
