@@ -57,7 +57,6 @@ class racs_d(dispatcher.dispatcher):
         fileno = user["fileno"]
 
         if not address: return
-        print(byte_data)
         self.get_handler(fileno).send_msg(_id, address, byte_data)
 
     def init_func(self, debug, configs):

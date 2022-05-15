@@ -206,6 +206,8 @@ int ixc_dnat_rule_add(const unsigned char *_id,const unsigned char *left_addr,co
         memcpy(rule->right_addr,right_addr,4);
     }
 
+    PRINT_IP(rule->left_addr);
+    PRINT_IP(rule->right_addr);
     rule->refcnt=2;
 
     return 0;
