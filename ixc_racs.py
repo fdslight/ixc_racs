@@ -203,6 +203,7 @@ class racs_d(dispatcher.dispatcher):
         rules = self.__rule_manager.rules
         for left_ip in rules:
             user_id, right_ip, is_ipv6 = rules[left_ip]
+            print(right_ip)
             self.racs.rule_add(user_id, left_ip, right_ip, is_ipv6)
             self.__os_route_add(left_ip, is_ipv6=is_ipv6)
         ''''''
