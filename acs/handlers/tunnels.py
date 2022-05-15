@@ -44,7 +44,7 @@ class udp_tunnel(udp_handler.udp_handler):
             self.sendto(message, address)
             return
 
-        self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg)
+        self.dispatcher.handle_msg_from_tunnel(user_id, msg)
 
     def udp_writable(self):
         self.remove_evt_write(self.fileno)

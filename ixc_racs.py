@@ -129,7 +129,7 @@ class racs_d(dispatcher.dispatcher):
         user["fileno"] = fd
         user["address"] = address
 
-    def handle_msg_from_tunnel(self, fileno, user_id, address, message):
+    def handle_msg_from_tunnel(self,user_id,message):
         if user_id not in self.__users: return
 
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
