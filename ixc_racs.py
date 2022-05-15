@@ -17,7 +17,7 @@ import pywind.lib.configfile as configfile
 import acs.handlers.tundev as tundev
 import acs.handlers.tunnels as tunnels
 
-import acs.lib.acs as racs
+import acs.lib.racs as racs
 import acs.lib.logging as logging
 import acs.lib.proc as proc
 

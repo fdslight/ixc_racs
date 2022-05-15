@@ -12,7 +12,7 @@ def build(cflags):
         "pywind/clib/netif/linux_tuntap.c"
     ]
 
-    sys_build.do_compile(files, "acs/lib/acs.so", cflags, is_shared=True)
+    sys_build.do_compile(files, "acs/lib/racs.so", cflags, is_shared=True)
 
 
 def main():
