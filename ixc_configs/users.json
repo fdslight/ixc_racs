@@ -1,7 +1,7 @@
 [
   {
     "key":"hello",
-    "cooment":"test",
+    "comment":"test",
     "rule_path":"rules/example.rule"
   }
 ]
