@@ -83,7 +83,8 @@ class rule_manager(object):
                 flags=False
                 logging.print_error("conflict rule %s->%s at file %s" % (left,right,fpath,))
                 break
-            
+
+            """
             if left in self.__rules_reverse:
                 flags=False
                 logging.print_error("conflict rule %s->%s at file %s" % (left,right,fpath,))
@@ -93,6 +94,7 @@ class rule_manager(object):
                 flags=False
                 logging.print_error("conflict rule %s->%s at file %s" % (left,right,fpath,))
                 break
+            """
 
             if left==right:
                 flags=False
