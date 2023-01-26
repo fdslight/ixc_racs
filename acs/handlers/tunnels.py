@@ -86,6 +86,7 @@ class tcp_tunnel_listener(tcp_handler.tcp_handler):
 
         self.set_socket(s)
         self.bind(address)
+        self.listen(10)
         self.register(self.fileno)
         self.add_evt_read(self.fileno)
 
