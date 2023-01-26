@@ -129,7 +129,7 @@ class racs_d(dispatcher.dispatcher):
 
     @property
     def crypt_key(self):
-        return None
+        return self.__crypt_key
 
     def user_exists(self, user_id: bytes):
         return user_id in self.__users
