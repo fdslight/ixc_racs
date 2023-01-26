@@ -199,8 +199,6 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         if not self.__user_id: return
         if _id != self.__user_id: return
 
-        print(message, len(message))
-
         wrap_data = self.__encrypt.wrap(_id, message)
 
         self.writer.write(wrap_data)
