@@ -173,6 +173,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
             return
 
         self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg, self.__caddr)
+        self.tcp_readable()
 
     def tcp_writable(self):
         self.remove_evt_write(self.fileno)
