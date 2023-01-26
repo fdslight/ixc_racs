@@ -96,6 +96,7 @@ class tcp_tunnel_listener(tcp_handler.tcp_handler):
         while 1:
             try:
                 cs, caddr = self.accept()
+                self.create_handler(self.fileno, tcp_tunnel_handler, cs, caddr)
             except BlockingIOError:
                 break
             ''''''
