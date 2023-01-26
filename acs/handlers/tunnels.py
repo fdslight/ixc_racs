@@ -131,6 +131,8 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.add_evt_read(self.fileno)
         self.set_timeout(self.fileno, 10)
 
+        logging.print_general("connected", self.__caddr)
+
         return self.fileno
 
     def parse_header(self):
@@ -183,6 +185,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.delete_handler(self.fileno)
 
     def tcp_delete(self):
+        logging.print_general("disconnected", self.__caddr)
         self.unregister(self.fileno)
         self.close()
 
