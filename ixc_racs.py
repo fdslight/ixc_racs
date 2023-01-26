@@ -144,7 +144,7 @@ class racs_d(dispatcher.dispatcher):
 
         if len(message) > 1500: return
 
-        self.update_user_conn(user_id, fileno, address)
+        #self.update_user_conn(user_id, fileno, address)
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
 
     def handle_ippkt_from_tundev(self, msg: bytes):

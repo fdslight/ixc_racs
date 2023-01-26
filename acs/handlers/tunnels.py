@@ -159,6 +159,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
 
         if not self.__user_id:
             self.__user_id = user_id
+            self.dispatcher.update_user_conn(user_id, self.fileno, self.__caddr)
 
         if self.__user_id != user_id:
             self.delete_handler(self.fileno)
