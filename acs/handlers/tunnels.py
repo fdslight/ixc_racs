@@ -195,11 +195,9 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.close()
 
     def send_msg(self, _id, address, message: bytes):
-        print("AA")
         if not self.__user_id: return
-        print("BB")
         if _id != self.__user_id: return
-        print("CC")
+        print(socket.inet_ntop(socket.AF_INET, message[16:20]))
 
         wrap_data = self.__encrypt.wrap(_id, message)
 
