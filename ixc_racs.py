@@ -37,8 +37,7 @@ class racs_d(dispatcher.dispatcher):
 
     __racs = None
 
-    __encrypt = None
-    __decrypt = None
+    __crypt_key = None
 
     __users = None
     __rule_manager = None
@@ -82,8 +81,7 @@ class racs_d(dispatcher.dispatcher):
         listen = (listen_ip, listen_port,)
         listen6 = (listen_ip6, listen_port)
 
-        self.__encrypt = crypto.encrypt(sec_config["key"])
-        self.__decrypt = crypto.decrypt(sec_config["key"])
+        self.__crypt_key = sec_config["key"]
 
         self.__users = {}
 
@@ -123,12 +121,8 @@ class racs_d(dispatcher.dispatcher):
         return self.__racs
 
     @property
-    def encrypt(self):
-        return self.__encrypt
-
-    @property
-    def decrypt(self):
-        return self.__decrypt
+    def crypt_key(self):
+        return None
 
     def user_exists(self, user_id: bytes):
         return user_id in self.__users
@@ -138,9 +132,10 @@ class racs_d(dispatcher.dispatcher):
         user["fileno"] = fd
         user["address"] = address
 
-    def handle_msg_from_tunnel(self, user_id, message):
+    def handle_msg_from_tunnel(self, fileno, user_id, message, address):
         if user_id not in self.__users: return
 
+        self.update_user_conn(user_id, fileno, address)
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
 
     def handle_ippkt_from_tundev(self, msg: bytes):
