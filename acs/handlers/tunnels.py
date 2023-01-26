@@ -147,6 +147,8 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         if not self.__header_ok:
             return
 
+        if self.reader.size() < self.__payload_len: return
+
         try:
             user_id, msg = self.__decrypt.unwrap_tcp_body(self.reader.read(self.__payload_len), self.__crc32)
         except crypto.TCPPktWrong:
@@ -160,6 +162,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
             self.delete_handler(self.fileno)
             return
 
+        self.__header_ok = False
         self.__update_time = time.time()
 
         if not msg:

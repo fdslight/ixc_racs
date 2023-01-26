@@ -142,6 +142,8 @@ class racs_d(dispatcher.dispatcher):
     def handle_msg_from_tunnel(self, fileno, user_id, message, address):
         if user_id not in self.__users: return
 
+        if len(message) > 1500: return
+
         self.update_user_conn(user_id, fileno, address)
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
 
