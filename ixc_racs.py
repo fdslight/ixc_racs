@@ -31,6 +31,9 @@ class racs_d(dispatcher.dispatcher):
     __udp6_fileno = -1
     __udp_fileno = -1
 
+    __tcp6_fileno = -1
+    __tcp_fileno = -1
+
     __tundev_fileno = -1
 
     __DEVNAME = "ixcracs"
@@ -56,6 +59,8 @@ class racs_d(dispatcher.dispatcher):
         fileno = user["fileno"]
 
         if not address: return
+        if not self.handler_exists(fileno): return
+
         self.get_handler(fileno).send_msg(_id, address, byte_data)
 
     def init_func(self, debug, configs):
@@ -86,8 +91,10 @@ class racs_d(dispatcher.dispatcher):
         self.__users = {}
 
         if enable_ipv6:
+            self.__tcp6_fileno = self.create_handler(-1, tunnels.tcp_tunnel_listener, listen6, is_ipv6=True)
             self.__udp6_fileno = self.create_handler(-1, tunnels.udp_tunnel, listen6, is_ipv6=True)
 
+        self.__tcp_fileno = self.create_handler(-1, tunnels.tcp_tunnel_listener, listen, is_ipv6=False)
         self.__udp_fileno = self.create_handler(-1, tunnels.udp_tunnel, listen, is_ipv6=False)
 
         self.__tundev_fileno = self.create_handler(-1, tundev.tundev, self.__DEVNAME)
@@ -166,6 +173,10 @@ class racs_d(dispatcher.dispatcher):
             self.delete_handler(self.__udp6_fileno)
         if self.__udp_fileno > 0:
             self.delete_handler(self.__udp_fileno)
+        if self.__tcp6_fileno > 0:
+            self.delete_handler(self.__tcp6_fileno)
+        if self.__tcp_fileno > 0:
+            self.delete_handler(self.__tcp_fileno)
 
         sys.exit(0)
 
@@ -270,7 +281,6 @@ def __update_user_configs():
 def main():
     help_doc = """
     -d      debug | start | stop    debug,start or stop application
-    -u      user_configs            update configs         
     """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "u:m:d:", [])
@@ -282,7 +292,6 @@ def main():
 
     for k, v in opts:
         if k == "-d": d = v
-        if k == "-u": u = v
 
     if not u and not d:
         print(help_doc)
