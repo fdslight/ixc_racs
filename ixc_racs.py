@@ -144,7 +144,7 @@ class racs_d(dispatcher.dispatcher):
 
         if len(message) > 1500: return
 
-        #self.update_user_conn(user_id, fileno, address)
+        # self.update_user_conn(user_id, fileno, address)
         self.racs.netpkt_handle(user_id, message, racs.FROM_LAN)
 
     def handle_ippkt_from_tundev(self, msg: bytes):
@@ -171,6 +171,14 @@ class racs_d(dispatcher.dispatcher):
         os.system(cmd)
 
     def __exit(self, signum, frame):
+        # 删除所有连接
+        for user_id in self.__users:
+            u_info = self.__users[user_id]
+            fd = u_info['fileno']
+            if fd in (self.__udp_fileno, self.__udp6_fileno):
+                continue
+            if self.handler_exists(fd): self.delete_handler(fd)
+
         if self.__udp6_fileno > 0:
             self.delete_handler(self.__udp6_fileno)
         if self.__udp_fileno > 0:
