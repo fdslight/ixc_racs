@@ -184,6 +184,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         v = t - self.__update_time
 
         if v > 180:
+            logging.print_general("timeout", self.__caddr)
             self.delete_handler(self.fileno)
             return
 
