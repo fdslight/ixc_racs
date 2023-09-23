@@ -118,6 +118,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
     __crc32 = None
     __user_id = None
     __update_time = None
+    __begin_time = None
 
     def init_func(self, creator_fd, cs, caddr):
         self.__caddr = caddr
@@ -128,6 +129,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
 
         self.__encrypt = crypto.encrypt(self.dispatcher.crypt_key, is_tcp=True)
         self.__decrypt = crypto.decrypt(self.dispatcher.crypt_key, is_tcp=True)
+        self.__begin_time = time.time()
 
         self.set_socket(cs)
         self.register(self.fileno)
@@ -194,7 +196,9 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.delete_handler(self.fileno)
 
     def tcp_delete(self):
-        logging.print_general("disconnected", self.__caddr)
+        persistent_time = int(time.time() - self.__begin_time)
+        logging.print_general("disconnected  persistent_time %s seconds" % persistent_time, self.__caddr)
+
         self.unregister(self.fileno)
         self.close()
 
