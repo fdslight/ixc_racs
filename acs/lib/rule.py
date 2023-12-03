@@ -96,10 +96,10 @@ class rule_manager(object):
                 break
             """
 
-            if left==right:
-                flags=False
-                logging.print_error("wrong rule %s->%s at file %s" % (left,right,fpath,))
-                break
+            #if left==right:
+            #    flags=False
+            #    logging.print_error("wrong rule %s->%s at file %s" % (left,right,fpath,))
+            #    break
             
             self.__rules[left]=(user_id,right,is_ipv6,)
             self.__rules_reverse[right]=(left,is_ipv6,)
