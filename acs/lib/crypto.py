@@ -112,7 +112,7 @@ class decrypt(crypto_base):
         return self.unwrap(body_data)
 
     def unwrap(self, byte_data: bytes):
-        if len(byte_data) < 17: return None
+        if len(byte_data) < 17: raise TCPPktWrong
 
         pad_size = byte_data[0]
         user_id = byte_data[1:17]
