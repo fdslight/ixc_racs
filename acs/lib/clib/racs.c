@@ -243,7 +243,7 @@ racs_local_rule_set(PyObject *self,PyObject *args)
 static PyObject *
 racs_tcp_mss_set(PyObject *self,PyObject *args)
 {
-    unsigned int mss;
+    unsigned short mss;
     int is_ipv6,rs;
 
     if(!PyArg_ParseTuple(args,"Hp",&mss,&is_ipv6)) return NULL;
