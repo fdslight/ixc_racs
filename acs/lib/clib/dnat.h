@@ -24,6 +24,9 @@ struct ixc_dnat{
     unsigned char local_old_ip[4];
     // 重写后的本机IPv6地址
     unsigned char local_new_ip[4];
+
+    unsigned int tcp_mss_v4;
+    unsigned int tcp_mss_v6;
 };
 
 struct ixc_dnat_rule{
@@ -45,5 +48,8 @@ void ixc_dnat_rule_del(unsigned char *left_addr,int is_ipv6);
 
 /// 设置本机规则
 int ixc_dnat_local_rule_set(const unsigned char *old_addr,const unsigned char *new_addr,int is_ipv6);
+
+/// 设置mtu值
+int ixc_dnat_tcp_mss_set(unsigned int mss,int is_ipv6);
 
 #endif

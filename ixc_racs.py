@@ -70,6 +70,9 @@ class racs_d(dispatcher.dispatcher):
         self.__debug = debug
 
         self.__racs = racs.racs(self.netpkt_sent_cb)
+        # 设置tcp mss的值
+        self.__racs.tcp_mss_set(1320, False)
+        self.__racs.tcp_mss_set(1240, True)
         self.__rule_manager = rule.rule_manager()
 
         signal.signal(signal.SIGINT, self.__exit)

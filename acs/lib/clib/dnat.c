@@ -69,6 +69,89 @@ void ixc_dnat_uninit(void)
     return;
 }
 
+static void ixc_dnat_tcp_mss_modify(struct netutil_tcphdr *tcp_header,int is_ipv6)
+{
+    unsigned short csum=ntohs(tcp_header->csum);
+    unsigned char *ptr=(unsigned char *)tcp_header;
+    unsigned short header_len_and_flag=ntohs(tcp_header->header_len_and_flag);
+    int header_size=((header_len_and_flag & 0xf000) >> 12) * 4;
+    int is_syn= (header_len_and_flag & 0x0002) >> 1;
+    unsigned short tcp_mss=0,set_tcp_mss;
+    unsigned char *tcp_opt=ptr+20;
+    unsigned short *tcp_mss_ptr=NULL;
+    unsigned char x,length;
+
+    // 检查是否是SYN报文
+    //DBG_FLAGS;
+    if(!is_syn) return;
+    //DBG_FLAGS;
+    if(header_size<=20) return;
+
+    //DBG_FLAGS;
+    for(int n=0;n<header_size-20;){
+        x=*tcp_opt++;
+        if(0==x) break;
+        if(1==x) {
+            n+=1;
+            continue;
+        }
+        length=*tcp_opt++;
+        if(2==x){
+            if(4==length) {
+                tcp_mss_ptr=(unsigned short *)(tcp_opt);
+                memcpy(&tcp_mss,tcp_opt,2);
+            }
+            break;
+       } 
+       tcp_opt=tcp_opt+length-2;
+       n+=length;
+    }
+
+    if(0==tcp_mss) return;
+  
+    tcp_mss=ntohs(tcp_mss);
+    //DBG("tcp mss %d set tcp mss %d\r\n",tcp_mss,set_tcp_mss);
+    
+    if(is_ipv6) set_tcp_mss=dnat.tcp_mss_v6;
+    else set_tcp_mss=dnat.tcp_mss_v4;
+
+    // 实际TCP MSS小于设置值,那么不修改
+    if(tcp_mss<=set_tcp_mss) return;
+    //DBG_FLAGS;
+    *tcp_mss_ptr=htons(set_tcp_mss);
+    csum=csum_calc_incre(tcp_mss,set_tcp_mss,csum);
+    tcp_header->csum=htons(csum);
+
+}
+
+static void ixc_dnat_modify_ip_tcp_mss(struct netutil_iphdr *header)
+{
+    int header_size= (header->ver_and_ihl & 0x0f) * 4;
+    unsigned char *ptr=(unsigned char *)header;
+    struct netutil_tcphdr *tcp_header=NULL;
+
+    if(0==dnat.tcp_mss_v4) return;
+    if(6!=header->protocol) return;
+
+    ptr=ptr+header_size;
+
+    tcp_header=(struct netutil_tcphdr *)ptr;
+    ixc_dnat_tcp_mss_modify(tcp_header,0);
+}
+
+static void ixc_dnat_modify_ip6_tcp_mss(struct netutil_ip6hdr *header)
+{
+    unsigned char *ptr=(unsigned char *)header;
+    struct netutil_tcphdr *tcp_header=NULL;
+
+    if(0==dnat.tcp_mss_v6) return;
+    if(6!=header->next_header) return;
+
+    ptr=ptr+40;
+    tcp_header=(struct netutil_tcphdr *)ptr;
+    ixc_dnat_tcp_mss_modify(tcp_header,1);
+}
+
 static void ixc_dnat_handle_v6(struct mbuf *m,struct netutil_ip6hdr *header)
 {
     struct map *map;
@@ -96,6 +179,8 @@ static void ixc_dnat_handle_v6(struct mbuf *m,struct netutil_ip6hdr *header)
     }
 
     memcpy(m->id,rule->id,16);
+
+    ixc_dnat_modify_ip6_tcp_mss(header);
 
     if(m->from==MBUF_FROM_WAN) {
         rewrite_ip6_addr(header,rule->right_addr,0);
@@ -135,6 +220,8 @@ static void ixc_dnat_handle_v4(struct mbuf *m,struct netutil_iphdr *header)
     }
 
     memcpy(m->id,rule->id,16);
+
+    ixc_dnat_modify_ip_tcp_mss(header);
     
     if(m->from==MBUF_FROM_WAN){
         rewrite_ip_addr(header,rule->right_addr,0);
@@ -258,6 +345,31 @@ int ixc_dnat_local_rule_set(const unsigned char *old_addr,const unsigned char *n
         memcpy(dnat.local_old_ip,old_addr,4);
         memcpy(dnat.local_new_ip,new_addr,4);
     }
+
+    return 0;
+}
+
+int ixc_dnat_tcp_mss_set(unsigned int mss,int is_ipv6)
+{
+    if(mss>1500) {
+        STDERR("wrong tcp mss value size %u\r\n",mss);
+        return -1;
+    }
+
+    if(is_ipv6){
+        if(mss>0 && mss < 516){
+            STDERR("wrong tcp mss value size %u for ipv6\r\n",mss);
+            return -1;
+        }
+    }else{
+        if(mss>0 && mss<536){
+            STDERR("wrong tcp mss value size %u for ipv4\r\n",mss);
+            return -1;
+        }
+    }
+    
+    if(is_ipv6) dnat.tcp_mss_v6=mss;
+    else dnat.tcp_mss_v4=mss;
 
     return 0;
 }

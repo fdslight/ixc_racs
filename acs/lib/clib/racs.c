@@ -240,6 +240,22 @@ racs_local_rule_set(PyObject *self,PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+racs_tcp_mss_set(PyObject *self,PyObject *args)
+{
+    unsigned short mss;
+    int is_ipv6,rs;
+
+    if(!PyArg_ParseTuple(args,"Hp",&mss,&is_ipv6)) return NULL;
+
+    rs=ixc_dnat_tcp_mss_set(mss,is_ipv6);
+    if(rs<0){
+        Py_RETURN_FALSE;
+    }
+
+    Py_RETURN_TRUE;
+}
+
 /// 打开tun设备
 static PyObject *
 racs_tun_open(PyObject *self,PyObject *args)
@@ -318,6 +334,7 @@ static PyMethodDef racs_methods[]={
     {"rule_add",(PyCFunction)racs_rule_add,METH_VARARGS,"dnat rule add"},
     {"rule_del",(PyCFunction)racs_rule_del,METH_VARARGS,"dnat rule del"},
     {"local_rule_set",(PyCFunction)racs_local_rule_set,METH_VARARGS,"set local rule"},
+    {"tcp_mss_set",(PyCFunction)racs_tcp_mss_set,METH_VARARGS,"set tcp mss value"},
 
     {"tun_open",(PyCFunction)racs_tun_open,METH_VARARGS,"open tun device"},
     {"tun_close",(PyCFunction)racs_tun_close,METH_VARARGS,"close tun device"},
