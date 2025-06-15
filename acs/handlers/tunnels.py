@@ -82,6 +82,7 @@ class tcp_tunnel_listener(tcp_handler.tcp_handler):
             fa = socket.AF_INET
 
         s = socket.socket(fa, socket.SOCK_STREAM)
+        s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         if is_ipv6: s.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -121,6 +122,8 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
     __begin_time = None
 
     def init_func(self, creator_fd, cs, caddr):
+        cs.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+
         self.__caddr = caddr
         self.__header_ok = False
         self.__payload_len = 0
