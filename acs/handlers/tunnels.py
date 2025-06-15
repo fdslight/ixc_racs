@@ -213,3 +213,5 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
 
         self.writer.write(wrap_data)
         self.add_evt_write(self.fileno)
+        self.send_now()
+
