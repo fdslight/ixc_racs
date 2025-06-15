@@ -121,7 +121,7 @@ class racs_d(dispatcher.dispatcher):
 
     def myloop(self):
 
-        for i in range(10):
+        for i in range(1024):
             io_wait=self.racs.loop()
         if not io_wait:
             self.set_default_io_wait_time(0)
