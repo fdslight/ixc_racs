@@ -120,11 +120,8 @@ class racs_d(dispatcher.dispatcher):
         self.racs.local_rule_set(local_ip6_rule["old"], local_ip6_rule["new"], True)
 
     def myloop(self):
-        io_wait = self.racs.loop()
-        if not io_wait:
-            self.set_default_io_wait_time(0)
-        else:
-            self.set_default_io_wait_time(5)
+        while self.racs.loop(): continue
+        # self.set_default_io_wait_time(5)
 
     @property
     def racs(self):
