@@ -72,6 +72,7 @@ class udp_tunnel(udp_handler.udp_handler):
 
         self.add_evt_write(self.fileno)
         self.sendto(wrap_data, address)
+        self.send_now()
 
 
 class tcp_tunnel_listener(tcp_handler.tcp_handler):
