@@ -364,7 +364,8 @@ static struct PyModuleDef racs_module={
     "racs",
     NULL,
     -1,
-    racs_methods
+    racs_methods,
+    NULL,NULL,NULL,NULL
 };
 
 PyMODINIT_FUNC
