@@ -287,7 +287,10 @@ def __update_user_configs():
         print("cannot found racs process")
         return
 
-    os.kill(pid, signal.SIGUSR1)
+    try:
+        os.kill(pid, signal.SIGUSR1)
+    except:
+        if os.path.isfile(PID_FILE): os.remove(PID_FILE)
 
 
 def main():
