@@ -276,8 +276,10 @@ def __stop_service():
     if pid < 0:
         print("cannot found acs server process")
         return
-
-    os.kill(pid, signal.SIGINT)
+    try:
+        os.kill(pid, signal.SIGINT)
+    except:
+        if os.path.isfile(PID_FILE): os.remove(PID_FILE)
 
 
 def __update_user_configs():
@@ -287,10 +289,7 @@ def __update_user_configs():
         print("cannot found racs process")
         return
 
-    try:
-        os.kill(pid, signal.SIGUSR1)
-    except:
-        if os.path.isfile(PID_FILE): os.remove(PID_FILE)
+    os.kill(pid, signal.SIGUSR1)
 
 
 def main():
