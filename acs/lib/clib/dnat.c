@@ -152,6 +152,37 @@ static void ixc_dnat_modify_ip6_tcp_mss(struct netutil_ip6hdr *header)
     ixc_dnat_tcp_mss_modify(tcp_header,1);
 }
 
+static void ixc_dnat_rewrite_for_icmpv6(struct mbuf *m,unsigned char *new_addr,int is_src)
+{
+    struct netutil_icmpv6hdr *icmpv6hdr=(struct netutil_icmpv6hdr *)(m->data+m->offset+40);
+    struct netutil_ip6hdr *header=NULL;
+    unsigned char *ptr=m->data+m->offset+48;
+    int need_handle_flags=0;
+
+    switch(icmpv6hdr->type){
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            need_handle_flags=1;
+            break;
+        default:
+            need_handle_flags=0;
+            break;
+    }
+    // 只处理错误消息
+    if(!need_handle_flags) return;
+    // 重写错误消息内部的IPv6数据包
+    header=(struct netutil_ip6hdr *)ptr;
+
+    // 这里IPv6内部原始数据包需要反过来,因为是发送流量或者接收流量的复制
+    if(is_src){
+        rewrite_ip6_addr(header,new_addr,0);
+    }else{
+        rewrite_ip6_addr(header,new_addr,1);
+    }
+}
+
 static void ixc_dnat_handle_v6(struct mbuf *m,struct netutil_ip6hdr *header)
 {
     struct map *map;
@@ -184,10 +215,40 @@ static void ixc_dnat_handle_v6(struct mbuf *m,struct netutil_ip6hdr *header)
 
     if(m->from==MBUF_FROM_WAN) {
         rewrite_ip6_addr(header,rule->right_addr,0);
+        ixc_dnat_rewrite_for_icmpv6(m,rule->right_addr,0);
         qos_add(m);
     }else{
         rewrite_ip6_addr(header,rule->left_addr,1);
+        ixc_dnat_rewrite_for_icmpv6(m,rule->left_addr,1);
         netpkt_send(m);
+    }
+}
+
+static void ixc_dnat_rewrite_for_icmp(struct mbuf *m,struct netutil_iphdr *iphdr,unsigned char *new_addr,int is_src)
+{
+    int hdr_len=(iphdr->ver_and_ihl & 0x0f) * 4;
+    int need_handle_flags;
+    struct netutil_icmphdr *icmphdr=(struct netutil_icmphdr *)(m->data+m->offset+hdr_len);
+
+    switch(icmphdr->type){
+        case 3:
+        case 4:
+        case 11:
+        case 12:
+            need_handle_flags=1;
+            break;
+        default:
+            need_handle_flags=0;
+            break;
+    }
+
+    if(!need_handle_flags) return;
+    iphdr=(struct netutil_iphdr *)(m->data+m->offset+hdr_len+8);
+    // 这里因为是原始数据包,所以方向需要反过来
+    if(is_src){
+        rewrite_ip_addr(iphdr,new_addr,0);
+    }else{
+        rewrite_ip_addr(iphdr,new_addr,1);
     }
 }
 
@@ -225,9 +286,11 @@ static void ixc_dnat_handle_v4(struct mbuf *m,struct netutil_iphdr *header)
     
     if(m->from==MBUF_FROM_WAN){
         rewrite_ip_addr(header,rule->right_addr,0);
+        ixc_dnat_rewrite_for_icmp(m,header,rule->right_addr,0);
         qos_add(m);
     }else{
         rewrite_ip_addr(header,rule->left_addr,1);
+        ixc_dnat_rewrite_for_icmp(m,header,rule->left_addr,1);
         netpkt_send(m);
     }
 }
