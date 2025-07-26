@@ -191,12 +191,18 @@ static void ixc_dnat_handle_v6(struct mbuf *m,struct netutil_ip6hdr *header)
     struct ixc_dnat_rule *rule;
     
     if(m->from==MBUF_FROM_WAN){
-        if(!memcmp(header->src_addr,dnat.local_old_ip6,16)) rewrite_ip6_addr(header,dnat.local_new_ip6,1);
+        if(!memcmp(header->src_addr,dnat.local_old_ip6,16)){
+            rewrite_ip6_addr(header,dnat.local_new_ip6,1);
+            ixc_dnat_rewrite_for_icmpv6(m,dnat.local_new_ip6,1);
+        }
 
         map=dnat.left2right_v6;
         memcpy(key,header->dst_addr,16);
     }else{
-        if(!memcmp(header->dst_addr,dnat.local_new_ip6,16)) rewrite_ip6_addr(header,dnat.local_old_ip6,0);
+        if(!memcmp(header->dst_addr,dnat.local_new_ip6,16)){
+            rewrite_ip6_addr(header,dnat.local_old_ip6,0);
+            ixc_dnat_rewrite_for_icmpv6(m,dnat.local_old_ip6,0);
+        }
 
         map=dnat.right2left_v6;
         memcpy(key,m->id,16);
@@ -261,13 +267,19 @@ static void ixc_dnat_handle_v4(struct mbuf *m,struct netutil_iphdr *header)
 
     if(m->from==MBUF_FROM_WAN){
         // 如果是本机地址,那么重写本机地址
-        if(!memcmp(header->src_addr,dnat.local_old_ip,4)) rewrite_ip_addr(header,dnat.local_new_ip,1);
+        if(!memcmp(header->src_addr,dnat.local_old_ip,4)) {
+            rewrite_ip_addr(header,dnat.local_new_ip,1);
+            ixc_dnat_rewrite_for_icmp(m,header,dnat.local_new_ip,1);
+        }
 
         map=dnat.left2right;
         memcpy(key,header->dst_addr,4);
     }else{
         // 如果是本机地址,那么重写本机地址
-        if(!memcmp(header->dst_addr,dnat.local_new_ip,4)) rewrite_ip_addr(header,dnat.local_old_ip,0);
+        if(!memcmp(header->dst_addr,dnat.local_new_ip,4)) {
+            rewrite_ip_addr(header,dnat.local_old_ip,0);
+            ixc_dnat_rewrite_for_icmp(m,header,dnat.local_old_ip,0);
+        }
 
         map=dnat.right2left;
         memcpy(key,m->id,16);
