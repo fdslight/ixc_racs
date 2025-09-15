@@ -139,7 +139,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.register(self.fileno)
         self.add_evt_read(self.fileno)
         self.set_timeout(self.fileno, 10)
-        self.tcp_loop_read_num = 32
+        #self.tcp_loop_read_num = 32
 
         logging.print_general("connected", self.__caddr)
 
@@ -181,7 +181,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
             return
 
         self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg, self.__caddr)
-        self.tcp_readable()
+        #self.tcp_readable()
 
     def tcp_writable(self):
         self.remove_evt_write(self.fileno)
