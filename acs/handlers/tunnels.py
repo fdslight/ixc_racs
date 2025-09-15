@@ -139,6 +139,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.register(self.fileno)
         self.add_evt_read(self.fileno)
         self.set_timeout(self.fileno, 10)
+        self.tcp_loop_read_num = 32
 
         logging.print_general("connected", self.__caddr)
 
@@ -215,4 +216,3 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.writer.write(wrap_data)
         self.add_evt_write(self.fileno)
         self.send_now()
-
