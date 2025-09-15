@@ -155,8 +155,8 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         while 1:
             if not self.__header_ok:
                 self.parse_header()
-            if not self.__header_ok: return
-            if self.reader.size() < self.__payload_len: return
+            if not self.__header_ok: break
+            if self.reader.size() < self.__payload_len: break
             try:
                 user_id, msg = self.__decrypt.unwrap_tcp_body(self.reader.read(self.__payload_len), self.__crc32)
             except crypto.TCPPktWrong:
@@ -172,8 +172,9 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
             self.__update_time = time.time()
             if not msg:
                 self.send_msg(self.__user_id, self.__caddr, b"")
-                return
-            self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg, self.__caddr)
+            else:
+                self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg, self.__caddr)
+            ''''''
         # self.tcp_readable()
 
     def tcp_writable(self):
