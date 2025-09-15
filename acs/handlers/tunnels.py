@@ -139,7 +139,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.register(self.fileno)
         self.add_evt_read(self.fileno)
         self.set_timeout(self.fileno, 10)
-        #self.tcp_loop_read_num = 32
+        # self.tcp_loop_read_num = 32
 
         logging.print_general("connected", self.__caddr)
 
@@ -152,36 +152,29 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
         self.__header_ok = True
 
     def tcp_readable(self):
-        if not self.__header_ok:
-            self.parse_header()
-        if not self.__header_ok:
-            return
-
-        if self.reader.size() < self.__payload_len: return
-
-        try:
-            user_id, msg = self.__decrypt.unwrap_tcp_body(self.reader.read(self.__payload_len), self.__crc32)
-        except crypto.TCPPktWrong:
-            self.delete_handler(self.fileno)
-            return
-
-        if not self.__user_id:
-            self.__user_id = user_id
-            self.dispatcher.update_user_conn(user_id, self.fileno, self.__caddr)
-
-        if self.__user_id != user_id:
-            self.delete_handler(self.fileno)
-            return
-
-        self.__header_ok = False
-        self.__update_time = time.time()
-
-        if not msg:
-            self.send_msg(self.__user_id, self.__caddr, b"")
-            return
-
-        self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg, self.__caddr)
-        #self.tcp_readable()
+        while 1:
+            if not self.__header_ok:
+                self.parse_header()
+            if not self.__header_ok: return
+            if self.reader.size() < self.__payload_len: return
+            try:
+                user_id, msg = self.__decrypt.unwrap_tcp_body(self.reader.read(self.__payload_len), self.__crc32)
+            except crypto.TCPPktWrong:
+                self.delete_handler(self.fileno)
+                return
+            if not self.__user_id:
+                self.__user_id = user_id
+                self.dispatcher.update_user_conn(user_id, self.fileno, self.__caddr)
+            if self.__user_id != user_id:
+                self.delete_handler(self.fileno)
+                return
+            self.__header_ok = False
+            self.__update_time = time.time()
+            if not msg:
+                self.send_msg(self.__user_id, self.__caddr, b"")
+                return
+            self.dispatcher.handle_msg_from_tunnel(self.fileno, user_id, msg, self.__caddr)
+        # self.tcp_readable()
 
     def tcp_writable(self):
         self.remove_evt_write(self.fileno)
