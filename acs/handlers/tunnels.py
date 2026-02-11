@@ -40,7 +40,10 @@ class udp_tunnel(udp_handler.udp_handler):
         return self.__decrypt
 
     def udp_readable(self, message, address):
-        rs = self.decrypt.unwrap(message)
+        try:
+            rs = self.decrypt.unwrap(message)
+        except crypto.ProtoPktWrong:
+            return
         if not rs: return
 
         user_id, msg = rs
@@ -159,7 +162,7 @@ class tcp_tunnel_handler(tcp_handler.tcp_handler):
             if self.reader.size() < self.__payload_len: break
             try:
                 user_id, msg = self.__decrypt.unwrap_tcp_body(self.reader.read(self.__payload_len), self.__crc32)
-            except crypto.TCPPktWrong:
+            except crypto.ProtoPktWrong:
                 self.delete_handler(self.fileno)
                 return
             if not self.__user_id:
