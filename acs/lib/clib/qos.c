@@ -55,14 +55,14 @@ static void qos_add_for_ip(struct mbuf *m)
 {
     struct netutil_iphdr *iphdr = (struct netutil_iphdr *)(m->data + m->offset);
 
-    qos_put(m,iphdr->src_addr[3],iphdr->dst_addr[1],iphdr->dst_addr[2],iphdr->dst_addr[3]);
+    qos_put(m,iphdr->dst_addr[0],iphdr->dst_addr[1],iphdr->dst_addr[2],iphdr->dst_addr[3]);
 }
 
 static void qos_add_for_ipv6(struct mbuf *m)
 {
     struct netutil_ip6hdr *header=(struct netutil_ip6hdr *)(m->data+m->offset);
 
-    qos_put(m,header->src_addr[15],header->dst_addr[13],header->dst_addr[14],header->dst_addr[15]);
+    qos_put(m,header->dst_addr[12],header->dst_addr[13],header->dst_addr[14],header->dst_addr[15]);
 }
 
 int qos_init(void)

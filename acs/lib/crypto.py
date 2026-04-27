@@ -50,7 +50,7 @@ def calc_str_md5(s: str):
     return md5.digest()
 
 
-class TCPPktWrong(Exception):
+class ProtoPktWrong(Exception):
     pass
 
 
@@ -107,12 +107,12 @@ class decrypt(crypto_base):
     def unwrap_tcp_body(self, body_data: bytes, check_crc32: int):
         crc32 = zlib.crc32(body_data)
         if check_crc32 != crc32:
-            raise TCPPktWrong
+            raise ProtoPktWrong
 
         return self.unwrap(body_data)
 
     def unwrap(self, byte_data: bytes):
-        if len(byte_data) < 17: raise TCPPktWrong
+        if len(byte_data) < 17: raise ProtoPktWrong
 
         pad_size = byte_data[0]
         user_id = byte_data[1:17]
