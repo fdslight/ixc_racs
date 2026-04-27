@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, getopt, os, signal, json, time
+import sys, getopt, os, signal, json, subprocess
 
 BASE_DIR = os.path.dirname(sys.argv[0])
 
@@ -159,8 +159,7 @@ class racs_d(dispatcher.dispatcher):
             cmd = "ip -6 route add %s/128 dev %s" % (address, self.__DEVNAME)
         else:
             cmd = "ip route add %s/32 dev %s" % (address, self.__DEVNAME)
-
-        os.system(cmd)
+        subprocess.call(cmd, shell=True)
 
     def __os_route_del(self, address, is_ipv6=False):
         """ 操作系统路由删除
@@ -169,8 +168,7 @@ class racs_d(dispatcher.dispatcher):
             cmd = "ip -6 route del %s/128" % address
         else:
             cmd = "ip route del %s/32" % address
-
-        os.system(cmd)
+        subprocess.call(cmd, shell=True)
 
     def __exit(self, signum, frame):
         # 删除所有连接
@@ -235,8 +233,8 @@ class racs_d(dispatcher.dispatcher):
         ''''''
 
     def set_os(self):
-        os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
-        os.system("echo 1 >/proc/sys/net/ipv6/conf/all/forwarding")
+        subprocess.call("echo 1 > /proc/sys/net/ipv4/ip_forward", shell=True)
+        subprocess.call("echo 1 >/proc/sys/net/ipv6/conf/all/forwarding", shell=True)
 
 
 def __start_service(debug):
