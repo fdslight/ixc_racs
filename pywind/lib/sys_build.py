@@ -41,7 +41,7 @@ def do_compile(flist, output, c_flags, is_shared=False):
     s=r.stdout.decode("utf-8")
 
     if not s and not os.path.isfile(cc):
-        print("ERROR: c compiler %s not found" % cc)
+        print("ERROR: C compiler %s not found" % cc)
         return
 
     cmd = cc
