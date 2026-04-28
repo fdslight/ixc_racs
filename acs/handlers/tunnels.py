@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-import socket, time
+import socket, time, os
 
 import pywind.evtframework.handlers.udp_handler as udp_handler
 import pywind.evtframework.handlers.tcp_handler as tcp_handler
 
-import acs.lib.crypto as crypto
 import acs.lib.logging as logging
+
+# 假如设置了此环境变量那么执行老旧协议
+if not os.getenv("IXC_RACS_USE_OLD_PROTOCOL"):
+    import acs.lib.crypto2 as crypto
+else:
+    import acs.lib.crypto as crypto
 
 
 class udp_tunnel(udp_handler.udp_handler):

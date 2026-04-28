@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""
+协议格式为
+user_id:16 bytes
+TCP_PAYLOAD_LEN:2 bytes //UDP不需要
+
+"""
+import sys, hashlib, struct
+
+TCP_HEADER_SIZE = 18
+
+try:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+except ImportError:
+    print("please install cryptography module")
+    sys.exit(-1)
+
+
+def _encrypt(key, none, aad, byte_data):
+    aesgcm = AESGCM(key)
+    try:
+        data = aesgcm.encrypt(none, byte_data, aad)
+    except:
+        return None
+    return data
+
+
+def _decrypt(key, none, aad, byte_data):
+    aesgcm = AESGCM(key)
+    try:
+        data = aesgcm.decrypt(none, byte_data, aad)
+    except:
+        return None
+
+    return data
+
+
+def get_size(byte_size):
+    return 16 + byte_size
+
+
+def calc_str_md5(s: str):
+    md5 = hashlib.md5()
+    md5.update(s.encode())
+
+    return md5.digest()
+
+
+class ProtoPktWrong(Exception):
+    pass
+
+
+class crypto_base(object):
+    __key = None
+    __is_tcp = None
+    __user_id = None
+
+    def __init__(self, key: str, is_tcp=False):
+        self.__is_tcp = is_tcp
+        key = calc_str_md5(key)
+        self.__key = key
+
+    @property
+    def key(self):
+        return self.__key
+
+    @property
+    def is_tcp(self):
+        return self.__is_tcp
+
+    def set_user_id(self, user_id):
+        self.__user_id = user_id
+
+    @property
+    def user_id(self):
+        return self.__user_id
+
+
+class encrypt(crypto_base):
+    def wrap(self, user_id: bytes, byte_data: bytes):
+        size = len(byte_data)
+        new_size = get_size(size)
+
+        _list = [
+            user_id,
+        ]
+
+        if self.is_tcp:
+            _list.append(struct.pack("!H", new_size))
+
+        _list.append(_encrypt(self.key, user_id, user_id, byte_data))
+
+        return b"".join(_list)
+
+
+class decrypt(crypto_base):
+    def unwrap_tcp_header(self, tcp_header: bytes):
+        user_id = tcp_header[0:16]
+        payload_len, = struct.unpack("!H", tcp_header[16:18])
+        self.set_user_id(user_id)
+
+        return -1, payload_len
+
+    def unwrap_tcp_body(self, body_data: bytes, *args):
+        data = _decrypt(self.key, self.user_id, self.user_id, body_data)
+        if data is None: raise ProtoPktWrong
+
+        return self.user_id, data
+
+    def unwrap(self, byte_data: bytes):
+        if len(byte_data) < 32: raise ProtoPktWrong
+        user_id = byte_data[0:16]
+        edata = byte_data[16:]
+
+        data = _decrypt(self.key, user_id, user_id, edata)
+        if data is None: raise ProtoPktWrong
+
+        return user_id, data
+
+
+"""
+import os
+
+a = encrypt("hello", is_tcp=False)
+b = decrypt("hello", is_tcp=False)
+
+rs = a.wrap(os.urandom(16), b"hello,world")
+#_, payload_len = b.unwrap_tcp_header(rs[0:TCP_HEADER_SIZE])
+#body_data = rs[18:]
+#print(b.unwrap_tcp_body(body_data, payload_len))
+print(b.unwrap(rs))
+"""
