@@ -20,9 +20,15 @@ import acs.handlers.tunnels as tunnels
 import acs.lib.racs as racs
 import acs.lib.logging as logging
 import acs.lib.proc as proc
-
-import acs.lib.crypto as crypto
 import acs.lib.rule as rule
+
+# 假如设置了此环境变量那么执行老旧协议
+if os.getenv("IXC_RACS_USE_OLD_PROTOCOL") is None:
+    print("NOTE:IXC RACS USE NEW PROTOCOL")
+    import acs.lib.crypto2 as crypto
+else:
+    print("NOTE:IXC RACS USE OLD PROTOCOL")
+    import acs.lib.crypto as crypto
 
 
 class racs_d(dispatcher.dispatcher):
