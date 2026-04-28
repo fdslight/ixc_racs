@@ -34,7 +34,9 @@ def get_c_files_from_dirs(d_list):
 
 
 def do_compile(flist, output, c_flags, is_shared=False):
-    cmd = "cc"
+    cc=os.getenv("CC")
+    if cc is None: cc="gcc"
+    cmd = cc
 
     if is_shared:
         cmd += " -fPIC -shared"
