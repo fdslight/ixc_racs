@@ -1,27 +1,14 @@
 #!/usr/bin/env python3
-import os, sys
+import os, sys, sysconfig
 
 import pywind.lib.sys_build as sys_build
-
-
-def find_python_include_path():
-    files = os.listdir("/usr/include")
-    result = ""
-
-    for f in files:
-        p = f.find("python3")
-        if p < 0: continue
-        result = "/usr/include/%s" % f
-        break
-
-    return result
 
 
 def build(cflags):
     files = sys_build.get_c_files("acs/lib/clib")
     files += sys_build.get_c_files("pywind/clib")
 
-    files+=[
+    files += [
         "pywind/clib/netif/linux_tuntap.c"
     ]
 
@@ -55,7 +42,8 @@ def main():
         print(help_doc)
         return
 
-    if not python3_include: python3_include = find_python_include_path()
+    if not python3_include:
+        python3_include = sysconfig.get_path("include")
 
     if not os.path.isdir(python3_include):
         print("ERROR:not found python3 header file %s" % python3_include)
