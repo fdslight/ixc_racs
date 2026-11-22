@@ -16,25 +16,6 @@ except ImportError:
     sys.exit(-1)
 
 
-def _encrypt(key, none, aad, byte_data):
-    aesgcm = AESGCM(key)
-    try:
-        data = aesgcm.encrypt(none, byte_data, aad)
-    except:
-        return None
-    return data
-
-
-def _decrypt(key, none, aad, byte_data):
-    aesgcm = AESGCM(key)
-    try:
-        data = aesgcm.decrypt(none, byte_data, aad)
-    except:
-        return None
-
-    return data
-
-
 def get_size(byte_size):
     return 16 + byte_size
 
@@ -54,11 +35,13 @@ class crypto_base(object):
     __key = None
     __is_tcp = None
     __user_id = None
+    __aesgcm = None
 
     def __init__(self, key: str, is_tcp=False):
         self.__is_tcp = is_tcp
         key = calc_str_md5(key)
         self.__key = key
+        self.__aesgcm = AESGCM(key)
 
     @property
     def key(self):
@@ -75,8 +58,24 @@ class crypto_base(object):
     def user_id(self):
         return self.__user_id
 
+    def encrypt(self, none, aad, byte_data):
+        try:
+            data = self.__aesgcm.encrypt(none, byte_data, aad)
+        except:
+            return None
+        return data
+
+    def decrypt(self, none, aad, byte_data):
+        try:
+            data = self.__aesgcm.decrypt(none, byte_data, aad)
+        except:
+            return None
+
+        return data
+
 
 class encrypt(crypto_base):
+
     def wrap(self, user_id: bytes, byte_data: bytes):
         size = len(byte_data)
         new_size = get_size(size)
@@ -88,7 +87,7 @@ class encrypt(crypto_base):
         if self.is_tcp:
             _list.append(struct.pack("!H", new_size))
 
-        _list.append(_encrypt(self.key, user_id, user_id, byte_data))
+        _list.append(self.encrypt(user_id, user_id, byte_data))
 
         return b"".join(_list)
 
@@ -102,7 +101,7 @@ class decrypt(crypto_base):
         return -1, payload_len
 
     def unwrap_tcp_body(self, body_data: bytes, *args):
-        data = _decrypt(self.key, self.user_id, self.user_id, body_data)
+        data = self.decrypt(self.user_id, self.user_id, body_data)
         if data is None: raise ProtoPktWrong
 
         return self.user_id, data
@@ -112,7 +111,7 @@ class decrypt(crypto_base):
         user_id = byte_data[0:16]
         edata = byte_data[16:]
 
-        data = _decrypt(self.key, user_id, user_id, edata)
+        data = self.decrypt(user_id, user_id, edata)
         if data is None: raise ProtoPktWrong
 
         return user_id, data
